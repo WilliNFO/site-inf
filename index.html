@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="login" id="tela-login">
+    <form class="cartao" id="form-login" onsubmit="return false">
+      <h1>Painel financeiro</h1>
+      <p class="rotulo">Entre com o seu usuário para continuar.</p>
+      <label>Usuário <input name="usuario" type="text" autocomplete="username" required autofocus></label>
+      <label>Senha <input name="senha" type="password" autocomplete="current-password" required></label>
+      <p class="erro" id="login-erro" role="alert"></p>
+      <button class="btn principal" type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <main class="painel" id="app" hidden>
+    <header class="topo">
+      <h1>Painel financeiro</h1>
+      <div class="sessao"><span class="atualizado" id="atualizado">Carregando dados…</span><span id="usuario-nome"></span><button class="btn pequeno" id="btn-sair">Sair</button></div>
+    </header>
+
+    <nav class="abas" role="tablist" aria-label="Seções">
+      <button role="tab" id="tab-painel" data-aba="painel" aria-selected="true">Painel</button>
+      <button role="tab" id="tab-historico" data-aba="historico" aria-selected="false">Histórico</button>
+    </nav>
+
+    <!-- ===== ABA PAINEL ===== -->
+    <div class="aba" id="aba-painel" role="tabpanel" aria-labelledby="tab-painel">
+      <section class="destaque" aria-label="Faturamento do período">
+        <p class="rotulo">Faturamento dos últimos 14 dias</p>
+        <p class="valor-grande" id="kpi-faturamento">R$ 0,00</p>
+        <div class="grafico" id="grafico" role="img" aria-label="Faturamento por dia"></div>
+      </section>
+
+      <section class="indicadores" aria-label="Indicadores">
+        <div><p class="rotulo">Vendas</p><p class="valor" id="kpi-vendas">0</p></div>
+        <div><p class="rotulo">Ticket médio</p><p class="valor" id="kpi-ticket">R$ 0,00</p></div>
+        <div><p class="rotulo">Melhor dia</p><p class="valor" id="kpi-melhor">—</p></div>
+      </section>
+
+      <section class="vendas" aria-label="Últimas vendas">
+        <div class="vendas-topo">
+          <h2>Últimas vendas</h2>
+          <div class="grupo">
+            <button class="btn" id="btn-ver-historico">Ver histórico completo</button>
+            <button class="btn principal" id="btn-nova">Nova venda</button>
+          </div>
+        </div>
+        <div class="rolagem">
+          <table>
+            <thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Registrado por</th><th class="num">Valor</th><th></th></tr></thead>
+            <tbody id="tabela"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== ABA HISTÓRICO ===== -->
+    <div class="aba" id="aba-historico" role="tabpanel" aria-labelledby="tab-historico" hidden>
+      <div class="sub-abas">
+        <button class="btn sub ativo" id="sub-vendas" data-sub="vendas">Todas as vendas</button>
+        <button class="btn sub" id="sub-log" data-sub="log">Registro de alterações</button>
+      </div>
+
+      <section id="painel-hist-vendas" aria-label="Todas as vendas">
+        <div class="filtros">
+          <input type="search" id="busca" placeholder="Buscar por cliente ou produto" aria-label="Buscar vendas">
+          <p class="rotulo" id="contagem"></p>
+        </div>
+        <div class="rolagem">
+          <table>
+            <thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Registrado por</th><th class="num">Valor</th><th></th></tr></thead>
+            <tbody id="tabela-hist"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="painel-hist-log" aria-label="Registro de alterações" hidden>
+        <p class="rotulo dica">Tudo o que foi criado, editado ou excluído fica registrado aqui. Vendas excluídas podem ser restauradas.</p>
+        <div class="rolagem">
+          <table>
+            <thead><tr><th>Quando</th><th>Usuário</th><th>Ação</th><th>Detalhes</th><th></th></tr></thead>
+            <tbody id="tabela-log"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="dialogo">
+    <form id="form" method="dialog">
+      <h2 id="dialogo-titulo">Editar venda</h2>
+      <p class="rotulo" id="dialogo-autor" hidden></p>
+      <label>Data <input type="date" id="f-data" required></label>
+      <label>Cliente <input type="text" id="f-cliente" required maxlength="60"></label>
+      <label>Produto <input type="text" id="f-produto" required maxlength="60"></label>
+      <label>Valor (R$) <input type="number" id="f-valor" required min="0" step="0.01"></label>
+      <div class="acoes">
+        <button type="button" class="btn perigo" id="btn-excluir">Excluir venda</button>
+        <span class="espaco"></span>
+        <button type="button" class="btn" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn principal">Salvar alterações</button>
+      </div>
+    </form>
+  </dialog>
+  <p class="aviso" id="aviso" role="status" aria-live="polite"></p>
+  <script src="usuarios.js"></script>
+  <script src="auth.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Diagnóstico: avisa na tela se algum arquivo não foi carregado
+    window.addEventListener("load", function () {
+      var faltando = [];
+      if (typeof USUARIOS === "undefined") faltando.push("usuarios.js");
+      if (typeof autenticar === "undefined") faltando.push("auth.js");
+      if (typeof iniciarApp === "undefined") faltando.push("script.js (versão nova)");
+      if (faltando.length) {
+        document.getElementById("login-erro").textContent =
+          "Arquivo não carregado: " + faltando.join(", ") + ". Confira se estão na mesma pasta do index.html e atualize com Ctrl+F5.";
+      }
+    });
+  </script>
+</body>
+</html>

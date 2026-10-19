@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar usuário</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="painel">
+    <header class="topo"><h1>Criar usuário</h1></header>
+    <p>Preencha os campos, copie a linha gerada e cole dentro da lista em <code>usuarios.js</code>. Use esta página só no seu computador e não a publique junto com o site.</p>
+    <form class="cartao" id="form-novo">
+      <label>Usuário (para entrar) <input name="usuario" type="text" required pattern="[a-zA-Z0-9._-]+" autocomplete="off"></label>
+      <label>Nome (aparece no histórico) <input name="nome" type="text" required autocomplete="off"></label>
+      <label>Senha <input name="senha" type="text" required minlength="6" autocomplete="off"></label>
+      <button class="btn principal" type="submit">Gerar linha</button>
+    </form>
+    <pre id="saida" hidden></pre>
+  </main>
+  <script src="auth.js"></script>
+  <script>
+    document.getElementById("form-novo").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const usuario = f.usuario.value.trim().toLowerCase();
+      const linha = `  { usuario: ${JSON.stringify(usuario)}, nome: ${JSON.stringify(f.nome.value.trim())}, hash: "${hashSenha(usuario, f.senha.value)}" },`;
+      const saida = document.getElementById("saida");
+      saida.textContent = linha;
+      saida.hidden = false;
+      const faixa = document.createRange();
+      faixa.selectNodeContents(saida);
+      getSelection().removeAllRanges();
+      getSelection().addRange(faixa);
+    });
+  </script>
+</body>
+</html>
